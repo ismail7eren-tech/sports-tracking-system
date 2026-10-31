@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sporcu Performans Takibi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <header class="header">
+        <div class="header-content">
+            <h1>⚡ Performans Takip Paneli</h1>
+            <p>Antrenman ve gelişim verilerini analiz edin</p>
+        </div>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-container">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <main class="container">
+        <!-- Yeni Sporcu Formu -->
+        <section class="box">
+            <div class="box-header">
+                <h3>👤 Yeni Sporcu Kaydı</h3>
+            </div>
+            <form action="/sporcu_ekle" method="POST">
+                <div class="form-group">
+                    <input type="text" name="ad" placeholder="Sporcu Ad Soyad" required>
+                </div>
+                <div class="form-group">
+                    <input type="text" name="spor_dali" placeholder="Branş (Örn: Powerlifting, Crossfit)" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Sisteme Ekle</button>
+            </form>
+        </section>
+
+        <!-- İlerleme Kaydı Formu -->
+        <section class="box highlight-box">
+            <div class="box-header">
+                <h3>📝 İlerleme Kaydı Gir</h3>
+            </div>
+            <form action="/ilerleme_kaydet" method="POST">
+                <div class="form-group">
+                    <select name="sporcu_id" required>
+                        <option value="">Sporcu Seçin...</option>
+                        {% for s in sporcular %}
+                            <option value="{{ s['id'] }}">{{ s['ad'] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <input type="date" name="tarih" required>
+                </div>
+                <div class="form-group">
+                    <input type="text" name="ant_ad" placeholder="Antrenman Adı (Örn: Upper Body Push)" required>
+                </div>
+                <div class="form-group">
+                    <textarea name="aciklama" placeholder="Kaldırılan ağırlık, tekrar sayısı, hissiyat veya notlar..." rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-accent">Kaydı Tamamla</button>
+            </form>
+        </section>
+    </main>
+
+    <section class="table-section">
+        <div class="table-header">
+            <h2>📈 Gelişim Raporları</h2>
+        </div>
+        
+        {% if not ilerlemeler %}
+            <div class="empty-state">Henüz bir ilerleme kaydı bulunmuyor. Sol üstteki formdan kayıt oluşturabilirsiniz.</div>
+        {% else %}
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tarih</th>
+                            <th>Sporcu</th>
+                            <th>Antrenman</th>
+                            <th>Açıklama</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in ilerlemeler %}
+                        <tr>
+                            <td class="date-cell">{{ i['tarih'] }}</td>
+                            <td><strong>{{ i['sporcu_ad'] }}</strong></td>
+                            <td><span class="badge">{{ i['antrenman_ad'] }}</span></td>
+                            <td class="desc-cell">{{ i['aciklama'] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </section>
+
+</body>
+</html>
